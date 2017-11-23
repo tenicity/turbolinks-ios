@@ -192,6 +192,15 @@ class ColdBootVisit: Visit, WKNavigationDelegate, WebViewPageLoadDelegate {
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         if let httpResponse = navigationResponse.response as? HTTPURLResponse {
+            if let api_token = httpResponse.allHeaderFields["Userapitoken"] {
+                UserDefaults.standard.set("\(api_token)", forKey: "api_token")
+                UserDefaults.standard.set(true, forKey: "has_api_token")
+                UserDefaults.standard.synchronize()
+            } else {
+                print("No API token in response header")
+                UserDefaults.standard.set(false, forKey: "has_api_token")
+                UserDefaults.standard.synchronize()
+            }
             if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
                 decisionHandler(.allow)
             } else {
